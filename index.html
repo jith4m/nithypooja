@@ -37,7 +37,7 @@ td input.ex{width:100%;border-style:dashed;padding:2px 6px;margin-top:2px}
 <div class="row"><button class="p" data-a="gen">Generate month</button></div>
 <div class="mut">Stars are filled in sequence from Day 1. Fix any skipped/extra day afterwards in the table (use “No star” for a day without a star, then ⤓ to re-fill the stars below it).</div></details>
 
-<div class="row"><label>Saved months<select id="ms"></select></label><button data-a="delm">Delete month</button><span style="flex:1"></span><button class="p" data-a="xl">⬇ Download Excel (all months)</button></div>
+<div class="row"><label>Saved months<select id="ms"></select></label><button data-a="delm">Delete month</button><span style="flex:1"></span><label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" id="inclnote"> Include notes in Excel</label><label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" id="inclphone"> Include mobile numbers in Excel</label><button data-a="rem">⬇ Reminder list (this month)</button><button class="p" data-a="xl">⬇ Download Excel (all months)</button></div>
 
 <div class="card"><b>2. Highlighted days</b> <span class="mut">(ഏകാദശി, പൗർണമി … change every month)</span>
 <div class="row"><label>Name<input id="sl" list="spl" placeholder="ഏകാദശി"></label><datalist id="spl"><option>ഏകാദശി<option>പൗർണമി<option>അമാവാസി<option>ഷഷ്ഠി<option>തിരുവോണം<option>കാർത്തിക ഊട്ട്<option>അഷ്ടമിരോഹിണി<option>ആയില്യപൂജ</datalist>
@@ -50,6 +50,8 @@ td input.ex{width:100%;border-style:dashed;padding:2px 6px;margin-top:2px}
 <section id="b" hidden>
 <div class="card"><div class="row">
 <label>Name, house<input id="bn" style="width:260px" placeholder="ബേബി, തോട്ടത്തിൽപറമ്പിൽ"></label>
+<label>Mobile<input id="bph" inputmode="tel" style="width:130px" placeholder="98xxxxxxxx"></label>
+<label>Note<input id="bnote" style="width:190px" placeholder="e.g. paid in advance"></label>
 <label>Booking type<select id="bt"><option value="">By star</option><option value="first">First weekday of the month</option><option value="every">Every weekday of the month</option></select></label>
 <label id="lbs">Star<select id="bs"></select></label><label id="lbw" hidden>Weekday<select id="bw"></select></label><button class="p" data-a="addb">Add booking</button>
 <label>Import from Excel<input type="file" id="bf" accept=".xlsx"></label></div>
@@ -80,8 +82,8 @@ function rest(f){f.text().then(t=>{try{const o=JSON.parse(t);if(!Array.isArray(o
   if(!confirm('Replace ALL current bookings and months with this backup?'))return;S.bookings=o.bookings;S.months=o.months;S.cur=0;save();render()}catch(e){alert('That file is not a valid backup')}});$('rf').value=''}
 function lastIdx(m){const o={};m.rows.forEach((r,i)=>{if(r.star!=='-')o[r.star]=i;if(r.star2)o[r.star2]=i});return o}
 function sections(m,i,L){const r=m.rows[i];
-  const bk=t=>(t&&t!=='-'&&L[t]===i)?S.bookings.filter(b=>b.star===t).map(b=>({c:'bk',t:b.name})):[];
-  const dw=D(r.d).getUTCDay(),wb=S.bookings.filter(b=>b.kind&&b.wd===dw&&(b.kind==='every'||m.rows.findIndex(x=>D(x.d).getUTCDay()===dw)===i)).map(b=>({c:'bk',t:b.name}));
+  const bk=t=>(t&&t!=='-'&&L[t]===i)?S.bookings.filter(b=>b.star===t).map(b=>({c:'bk',t:b.name,n:b.note||'',p:b.phone||''})):[];
+  const dw=D(r.d).getUTCDay(),wb=S.bookings.filter(b=>b.kind&&b.wd===dw&&(b.kind==='every'||m.rows.findIndex(x=>D(x.d).getUTCDay()===dw)===i)).map(b=>({c:'bk',t:b.name,n:b.note||'',p:b.phone||''}));
   const sp=r.sp.map((t,k)=>({c:'sp',t,k})), ex=(a,g)=>(a||[]).map((t,k)=>({c:'ex',t,k,g}));
   const a={star:r.star,items:[...sp,...wb,...bk(r.star),...ex(r.ex,0)]};
   return r.star2?[a,{star:r.star2,items:[...bk(r.star2),...ex(r.ex2,1)]}]:[a]}
@@ -94,11 +96,11 @@ function render(){
     const L=lastIdx(m);let h='<table><tr><th>ദിവസം</th><th>English</th><th>ആഴ്ച</th><th style="width:164px">നക്ഷത്രം</th><th>പേര്</th><th></th></tr>';
     m.rows.forEach((r,i)=>{const sc=sections(m,i,L);
       h+=`<tr><td class="c">${esc(m.name)} ${r.mal}</td><td class="c">${lab(r.d)}<br><input type="date" value="${r.d}" data-c="date" data-i="${i}" style="width:130px;font-size:11px;padding:1px"></td><td class="c">${wd(r.d)}</td>
-      <td colspan="2" style="padding:0"><table style="min-width:0;width:100%;border:0">${sc.map((q,g)=>`<tr><td style="width:150px;border-left:0;${g?'':'border-top:0;'}">${g?`<select data-c="star2" data-i="${i}" title="second star on this date"><option value="">✕ remove 2nd star</option>${opt(STARS,q.star)}</select>`:`<select data-c="star" data-i="${i}">${opt(STARS,q.star,'– No star –')}</select>`}</td><td style="border-right:0;${g?'':'border-top:0;'}">${q.items.map(x=>`<span class="${x.c==='sp'?'sp':'nm'}">${esc(x.t)}${x.c!=='bk'?`<span class="x" data-a="rm${x.c}" data-i="${i}" data-k="${x.k}" data-g="${x.g||0}">✕</span>`:''}</span>`).join('')}<input class="ex" placeholder="+ add pooja" data-c="addex" data-i="${i}" data-g="${g}"></td></tr>`).join('')}</table></td>
+      <td colspan="2" style="padding:0"><table style="min-width:0;width:100%;border:0">${sc.map((q,g)=>`<tr><td style="width:150px;border-left:0;${g?'':'border-top:0;'}">${g?`<select data-c="star2" data-i="${i}" title="second star on this date"><option value="">✕ remove 2nd star</option>${opt(STARS,q.star)}</select>`:`<select data-c="star" data-i="${i}">${opt(STARS,q.star,'– No star –')}</select>`}</td><td style="border-right:0;${g?'':'border-top:0;'}">${q.items.map(x=>`<span class="${x.c==='sp'?'sp':'nm'}">${esc(x.t)}${x.n?` <small class="mut">– ${esc(x.n)}</small>`:''}${x.p?` <small class="mut">☎ ${esc(x.p)}</small>`:''}${x.c!=='bk'?`<span class="x" data-a="rm${x.c}" data-i="${i}" data-k="${x.k}" data-g="${x.g||0}">✕</span>`:''}</span>`).join('')}<input class="ex" placeholder="+ add pooja" data-c="addex" data-i="${i}" data-g="${g}"></td></tr>`).join('')}</table></td>
       <td class="c"><button data-a="fill" data-i="${i}" title="re-fill stars below">⤓</button> <button data-a="ins" data-i="${i}" title="insert day below">＋</button> <button data-a="del" data-i="${i}">✕</button></td></tr>`});
     $('tbl').innerHTML=h+'</table>'}
   const f=$('bfil').value, bl=S.bookings.filter(b=>!f||(f==='*'?b.kind:b.star===f)).sort((a,b)=>STARS.indexOf(a.star)-STARS.indexOf(b.star));
-  $('bk').innerHTML=`<table><tr><th>Star / weekday</th><th>Name, house (${bl.length})</th><th></th></tr>`+bl.map(b=>`<tr><td>${b.kind?`<select data-c="bkind" data-id="${b.id}"><option value="first"${b.kind==='first'?' selected':''}>First</option><option value="every"${b.kind==='every'?' selected':''}>Every</option></select> <select data-c="bwd" data-id="${b.id}">${WD.map((x,i)=>`<option value="${i}"${i===b.wd?' selected':''}>${x}</option>`).join('')}</select>`:`<select data-c="bstar" data-id="${b.id}">${opt(STARS,b.star)}</select>`}</td><td><input style="width:100%" value="${esc(b.name)}" data-c="bname" data-id="${b.id}"></td><td class="c"><button data-a="delb" data-id="${b.id}">✕</button></td></tr>`).join('')+'</table>';
+  $('bk').innerHTML=`<table><tr><th>Star / weekday</th><th>Name, house (${bl.length})</th><th>Mobile</th><th>Note</th><th></th></tr>`+bl.map(b=>`<tr><td>${b.kind?`<select data-c="bkind" data-id="${b.id}"><option value="first"${b.kind==='first'?' selected':''}>First</option><option value="every"${b.kind==='every'?' selected':''}>Every</option></select> <select data-c="bwd" data-id="${b.id}">${WD.map((x,i)=>`<option value="${i}"${i===b.wd?' selected':''}>${x}</option>`).join('')}</select>`:`<select data-c="bstar" data-id="${b.id}">${opt(STARS,b.star)}</select>`}</td><td><input style="width:100%" value="${esc(b.name)}" data-c="bname" data-id="${b.id}"></td><td><input style="width:130px" inputmode="tel" value="${esc(b.phone||'')}" data-c="bphone" data-id="${b.id}" placeholder="mobile"></td><td><input style="width:100%" value="${esc(b.note||'')}" data-c="bnote" data-id="${b.id}" placeholder="note"></td><td class="c"><button data-a="delb" data-id="${b.id}">✕</button></td></tr>`).join('')+'</table>';
 }
 const A={
  tab(el){$('m').hidden=el.dataset.v!=='m';$('b').hidden=el.dataset.v!=='b';$('tm').className=el.dataset.v==='m'?'on':'';$('tb').className=el.dataset.v==='b'?'on':''},
@@ -120,7 +122,7 @@ const A={
  fill(el){const R=cur().rows;let s=null;for(let k=+el.dataset.i;k<R.length;k++){if(R[k].star==='-')continue;if(s===null){s=R[k].star2||R[k].star}else{s=nxt(s);R[k].star=s;if(R[k].star2)s=R[k].star2}}save();render()},
  ins(el){const R=cur().rows,i=+el.dataset.i;R.splice(i+1,0,{mal:R[i].mal+1,d:addD(R[i].d,1),star:'-',sp:[],ex:[]});for(let k=i+2;k<R.length;k++){R[k].mal++;R[k].d=addD(R[k].d,1)}save();render()},
  del(el){const R=cur().rows,i=+el.dataset.i;R.splice(i,1);for(let k=i;k<R.length;k++){R[k].mal--;R[k].d=addD(R[k].d,-1)}save();render()},
- addb(){const n=$('bn').value.trim();if(!n)return;S.bookings.push($('bt').value?{id:uid(),name:n,star:'',kind:$('bt').value,wd:+$('bw').value}:{id:uid(),name:n,star:$('bs').value});$('bn').value='';save();render()},
+ addb(){const n=$('bn').value.trim();if(!n)return;S.bookings.push(Object.assign($('bt').value?{id:uid(),name:n,star:'',kind:$('bt').value,wd:+$('bw').value}:{id:uid(),name:n,star:$('bs').value},{note:$('bnote').value.trim(),phone:$('bph').value.trim()}));$('bnote').value='';$('bph').value='';$('bn').value='';save();render()},
  delb(el){S.bookings=S.bookings.filter(b=>b.id!==el.dataset.id);save();render()},
  addex(){const d=document.createElement('div');d.className='row exr';const so=STARS.map(x=>`<option>${x}</option>`).join('');
   d.innerHTML=`<label>Type<select class="et" data-c="et"><option value="two">Two stars on one date</option><option value="none">No star on a date</option></select></label><label>Date<input type="date" class="ed"></label><label class="e2">Star 1<select class="ea" data-c="ea">${so}</select></label><label class="e2">Star 2<select class="eb">${so}</select></label><button data-a="rmx">✕</button>`;
@@ -128,6 +130,13 @@ const A={
  rmx(el){el.closest('.exr').remove()},
  backup(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({bookings:S.bookings,months:S.months})],{type:'application/json'}));a.download='pooja-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click()},
  restore(){$('rf').click()},
+ async rem(){const m=cur();if(!m)return alert('Generate a month first');
+  try{const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('Reminders'),L=lastIdx(m),f=d=>d.split('-').reverse().join('-');
+    ws.columns=[{header:'Pooja date',width:12},{header:'Day',width:10},{header:'Star',width:14},{header:'Name',width:34},{header:'Mobile',width:15},{header:'Note',width:24},{header:'Send reminder on',width:16}];
+    ws.getRow(1).font={bold:true};
+    m.rows.forEach((r,i)=>sections(m,i,L).forEach(q=>q.items.forEach(x=>{if(x.c!=='sp')ws.addRow([f(r.d),wd(r.d),q.star,x.t,x.p||'',x.n||'',f(addD(r.d,-1))])})));
+    if(ws.rowCount<2)return alert('No poojas in this month yet');
+    await dlSave('pooja-reminders-'+m.name+'.xlsx',await wb.xlsx.writeBuffer())}catch(e){if(!e||e.code!=='declined')alert('Download failed: '+((e&&(e.message||e.code))||e))}},
  xl:exportXl
 };
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&A[el.dataset.a])A[el.dataset.a](el)});
@@ -145,6 +154,8 @@ document.addEventListener('change',e=>{const el=e.target,c=el.dataset.c,m=cur();
  else if(c==='addex'){if(!el.value.trim())return;(el.dataset.g==='1'?(m.rows[el.dataset.i].ex2=m.rows[el.dataset.i].ex2||[]):m.rows[el.dataset.i].ex).push(el.value.trim())}
  else if(c==='bkind'){S.bookings.find(b=>b.id===el.dataset.id).kind=el.value}
  else if(c==='bwd'){S.bookings.find(b=>b.id===el.dataset.id).wd=+el.value}
+ else if(c==='bphone'){S.bookings.find(b=>b.id===el.dataset.id).phone=el.value.trim()}
+ else if(c==='bnote'){S.bookings.find(b=>b.id===el.dataset.id).note=el.value.trim()}
  else if(c==='bstar'){S.bookings.find(b=>b.id===el.dataset.id).star=el.value}
  else if(c==='bname'){S.bookings.find(b=>b.id===el.dataset.id).name=el.value}
  else return;
@@ -157,23 +168,24 @@ async function imp(f){
     if(!S.bookings.some(b=>b.name===t&&b.star===st)){S.bookings.push({id:uid(),name:t,star:st});n++}}));
   $('bf').value='';save();render();alert(n+' bookings imported')}
 function sheet(wb,m){
-  const ws=wb.addWorksheet(m.name);ws.columns=[{width:10},{width:10.8},{width:7.8},{width:13.7},{width:42.6}];
+  const NC=$('inclphone').checked?6:5,ws=wb.addWorksheet(m.name);ws.columns=[{width:10},{width:10.8},{width:7.8},{width:13.7},{width:42.6}].concat(NC>5?[{width:14}]:[]);
   const mg=(r,v,b)=>{ws.mergeCells(r);const c=ws.getCell(r.split(':')[0]);c.value=v;if(b)c.font={name:'Aptos Narrow',size:b,bold:true}};
-  mg('A1:E1','തലയാക്കുളം ഭഗവതി ക്ഷേത്രം',12);mg('A2:E2',`നിത്യപൂജ വഴിപാട് വിവരങ്ങൾ (${m.name})`,10);
+  mg('A1:'+(NC>5?'F':'E')+'1','തലയാക്കുളം ഭഗവതി ക്ഷേത്രം',12);mg('A2:'+(NC>5?'F':'E')+'2',`നിത്യപൂജ വഴിപാട് വിവരങ്ങൾ (${m.name})`,10);
   ws.mergeCells('A4:B4');ws.getCell('A4').value=m.rate;ws.getCell('E4').value='Date : '+m.sheetDate;
-  mg('A6:C6','ദിവസം');mg('D6:D7','നക്ഷത്രം ');mg('E6:E7','പേര്');
+  mg('A6:C6','ദിവസം');mg('D6:D7','നക്ഷത്രം ');mg('E6:E7','പേര്');if(NC>5)mg('F6:F7','മൊബൈൽ');
   ['മലയാളം','ഇംഗ്ലീഷ് ','ആഴ്ച'].forEach((t,i)=>ws.getCell(7,i+1).value=t);
   const L=lastIdx(m);let r=8;
   m.rows.forEach((row,i)=>{const sc=sections(m,i,L),hs=sc.map(q=>Math.max(1,q.items.length)),n=hs.reduce((a,b)=>a+b,0);
     [`${m.name} ${row.mal}`,lab(row.d),wd(row.d)].forEach((v,c)=>{ws.getCell(r,c+1).value=v;if(n>1)ws.mergeCells(r,c+1,r+n-1,c+1)});
     let y=r;sc.forEach((q,k)=>{ws.getCell(y,4).value=q.star;if(hs[k]>1)ws.mergeCells(y,4,y+hs[k]-1,4);
-      q.items.forEach((x,j)=>{const c=ws.getCell(y+j,5);c.value=x.t;if(x.c==='sp'){c.font={name:'Aptos Narrow',size:9,bold:true};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFF6600'}};c.alignment={horizontal:'center'}}});y+=hs[k]});
+      q.items.forEach((x,j)=>{const c=ws.getCell(y+j,5);c.value=(x.n&&$('inclnote').checked)?x.t+' ('+x.n+')':x.t;if(NC>5&&x.c!=='sp')ws.getCell(y+j,6).value=x.p||'';if(x.c==='sp'){c.font={name:'Aptos Narrow',size:9,bold:true};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFF6600'}};c.alignment={horizontal:'center'}}});y+=hs[k]});
     r+=n});
   const med={style:'medium'};
-  for(let y=6;y<r;y++)for(let x=1;x<=5;x++){const c=ws.getCell(y,x);c.border={top:med,bottom:med,left:med,right:med};
+  for(let y=6;y<r;y++)for(let x=1;x<=NC;x++){const c=ws.getCell(y,x);c.border={top:med,bottom:med,left:med,right:med};
     c.font=c.font&&c.font.name?c.font:{name:'Aptos Narrow',size:9,bold:y<8};
     c.alignment=Object.assign({vertical:'middle',wrapText:x===4},c.alignment||{},x<5||y<8?{horizontal:'center'}:{})}
 }
+function dlSave(n,buf){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf]));a.download=n;document.body.appendChild(a);a.click();a.remove()}
 async function exportXl(){
   if(!S.months.length)return alert('Generate a month first');
   try{const wb=new ExcelJS.Workbook();S.months.forEach(m=>sheet(wb,m));const buf=await wb.xlsx.writeBuffer();
