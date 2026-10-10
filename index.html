@@ -1,0 +1,209 @@
+<!DOCTYPE html><html lang="ml"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>പൂജ ഷെഡ്യൂൾ – തലയാക്കുളം ഭഗവതി ക്ഷേത്രം</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fff;--fg:#222;--mut:#666;--bd:#d6d6d6;--card:#f6f6f4;--ac:#c2410c;--sp:#ff6600}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1c1a;--fg:#eee;--mut:#aaa;--bd:#444;--card:#272724}}
+:root[data-theme="dark"]{--bg:#1c1c1a;--fg:#eee;--mut:#aaa;--bd:#444;--card:#272724}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif;padding:12px;max-width:1000px;margin:auto}
+[hidden]{display:none!important}h1{font-size:18px;margin:0 0 8px}.row{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin:8px 0}
+label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:2px}
+input,select,button{font:inherit;padding:6px 8px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--fg)}
+button{cursor:pointer}button.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;margin:10px 0}
+.tabs button{border-radius:6px 6px 0 0}.tabs button.on{background:var(--ac);color:#fff}
+.w{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:640px}td,th{border:1px solid var(--bd);padding:4px 6px;vertical-align:top}
+th{background:var(--card)}.c{text-align:center;white-space:nowrap}
+.sp{background:var(--sp);color:#000;font-weight:700;padding:1px 6px;border-radius:4px;display:block;margin:1px 0}
+.nm{display:block;margin:1px 0}.x{cursor:pointer;color:var(--mut);margin-left:4px}.mut{color:var(--mut);font-size:12px}
+td input.ex{width:100%;border-style:dashed;padding:2px 6px;margin-top:2px}
+</style></head><body>
+<div id="gate" class="card" style="max-width:420px;margin:60px auto;text-align:center"><h1>തലയാക്കുളം ഭഗവതി ക്ഷേത്രം</h1><p>നിത്യപൂജ ഷെഡ്യൂൾ</p><p id="gmsg" class="mut">Loading…</p><button class="p" id="signin" hidden>Sign in with Google</button> <button id="gout" hidden>Sign out</button></div>
+<div id="main" hidden>
+<h1>തലയാക്കുളം ഭഗവതി ക്ഷേത്രം – നിത്യപൂജ ഷെഡ്യൂൾ</h1>
+<div class="row" style="justify-content:space-between;margin-top:0"><span class="mut">Signed in as <b id="who"></b></span><span><button data-a="backup">Backup (JSON)</button> <button data-a="restore">Restore</button><input type="file" id="rf" accept=".json" hidden> <button id="signout">Sign out</button></span></div>
+<div id="msg" style="min-height:18px;color:var(--ac);font-size:13px"></div><div class="tabs"><button data-a="tab" data-v="m" id="tm" class="on">Month schedule</button> <button data-a="tab" data-v="b" id="tb">Bookings</button></div>
+
+<section id="m">
+<details class="card" open><summary><b>1. Generate a new month</b></summary>
+<div class="row">
+<label>Malayalam month<select id="gm"></select></label>
+<label>Day 1 – English date<input type="date" id="gd"></label>
+<label>No. of days<input type="number" id="gn" value="31" min="28" max="32" style="width:70px"></label>
+<label>Day 1 star<select id="gs"></select></label>
+<label>Amount<input id="gr" value="Rs : 200 /-" style="width:100px"></label>
+<label>Sheet date<input id="gt" placeholder="dd-mm-yyyy" style="width:110px"></label>
+</div>
+<div class="card" style="margin:4px 0"><b>Exceptions</b> <span class="mut">– dates with two stars, or with no star (shown as “-”). All other days follow the star order.</span><div id="exl"></div><button data-a="addex">＋ Add exception</button></div>
+<div class="row"><button class="p" data-a="gen">Generate month</button></div>
+<div class="mut">Stars are filled in sequence from Day 1. Fix any skipped/extra day afterwards in the table (use “No star” for a day without a star, then ⤓ to re-fill the stars below it).</div></details>
+
+<div class="row"><label>Saved months<select id="ms"></select></label><button data-a="delm">Delete month</button><span style="flex:1"></span><button class="p" data-a="xl">⬇ Download Excel (all months)</button></div>
+
+<div class="card"><b>2. Highlighted days</b> <span class="mut">(ഏകാദശി, പൗർണമി … change every month)</span>
+<div class="row"><label>Name<input id="sl" list="spl" placeholder="ഏകാദശി"></label><datalist id="spl"><option>ഏകാദശി<option>പൗർണമി<option>അമാവാസി<option>ഷഷ്ഠി<option>തിരുവോണം<option>കാർത്തിക ഊട്ട്<option>അഷ്ടമിരോഹിണി<option>ആയില്യപൂജ</datalist>
+<label>English date<input type="date" id="sdt"></label><button data-a="addsp">Add</button></div></div>
+
+<div class="w" id="tbl"></div>
+<p class="mut">Row buttons: ⤓ re-fill stars below · ＋ insert a day below (all rows below move down 1 day) · ✕ delete day (rows below move up). Changing a row's date shifts all rows below by the same amount. Dates with two stars or no star are set under “Exceptions” when generating (bookings for both stars go on that row).</p>
+</section>
+
+<section id="b" hidden>
+<div class="card"><div class="row">
+<label>Name, house<input id="bn" style="width:260px" placeholder="ബേബി, തോട്ടത്തിൽപറമ്പിൽ"></label>
+<label>Booking type<select id="bt"><option value="">By star</option><option value="first">First weekday of the month</option><option value="every">Every weekday of the month</option></select></label>
+<label id="lbs">Star<select id="bs"></select></label><label id="lbw" hidden>Weekday<select id="bw"></select></label><button class="p" data-a="addb">Add booking</button>
+<label>Import from Excel<input type="file" id="bf" accept=".xlsx"></label></div>
+<div class="mut">Bookings repeat every month. By star: if a star occurs twice in the month, the pooja goes on its last occurrence. By weekday: “first” = the first such weekday of the Malayalam month; “every” = all of them.</div></div>
+<div class="row"><label>Filter<select id="bfil"></select></label></div>
+<div class="w" id="bk"></div>
+</section>
+
+</div>
+<script>window.FIREBASE_CONFIG={apiKey:"AIzaSyCmKfL-8UJdmJ7uc_XMu8X1dHO5kLYX8HY",authDomain:"nithypooja-9c9b9.firebaseapp.com",projectId:"nithypooja-9c9b9",appId:"1:386805414750:web:6cc4bd1a135a897cededcf"};</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script>
+const STARS=['അശ്വതി','ഭരണി','കാർത്തിക','രോഹിണി','മകയിരം','തിരുവാതിര','പുണർതം','പൂയം','ആയില്യം','മകം','പൂരം','ഉത്രം','അത്തം','ചിത്തിര','ചോതി','വിശാഖം','അനിഴം','തൃക്കേട്ട','മൂലം','പൂരാടം','ഉത്രാടം','തിരുവോണം','അവിട്ടം','ചതയം','പൂരുരുട്ടാതി','ഉത്രട്ടാതി','രേവതി'];
+const MM=['ചിങ്ങം','കന്നി','തുലാം','വൃശ്ചികം','ധനു','മകരം','കുംഭം','മീനം','മേടം','ഇടവം','മിഥുനം','കർക്കടകം'];
+const WD=['ഞായർ','തിങ്കൾ','ചൊവ്വ','ബുധൻ','വ്യാഴം','വെള്ളി','ശനി'];
+const EM=['ജനു','ഫെബ്രു','മാർച്ച്','ഏപ്രി','മേയ്','ജൂൺ','ജൂലൈ','ഓഗസ്ത്','സെപ്റ്റ','ഒക്ടോ','നവം','ഡിസം'];
+const $=id=>document.getElementById(id), esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const D=s=>new Date(s+'T00:00:00Z'), addD=(s,n)=>{const d=D(s);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
+const lab=s=>EM[D(s).getUTCMonth()]+' '+String(D(s).getUTCDate()).padStart(2,'0'), wd=s=>WD[D(s).getUTCDay()];
+const nxt=s=>STARS[(STARS.indexOf(s)+1)%27], uid=()=>Math.random().toString(36).slice(2,9);
+window.alert=m=>{$('msg').textContent=m;clearTimeout(window._t);window._t=setTimeout(()=>$('msg').textContent='',6000)};
+let S={bookings:[],months:[],cur:0};
+const cur=()=>S.months[S.cur];
+function load(){try{S.cur=+localStorage.getItem('poojaCur')||0}catch(e){}render()}
+function save(){try{localStorage.setItem('poojaCur',S.cur)}catch(e){}window.remoteSave&&window.remoteSave(S)}
+function applyRemote(k,l){S[k]=l;if(S.cur>=S.months.length)S.cur=0;render()}
+function rest(f){f.text().then(t=>{try{const o=JSON.parse(t);if(!Array.isArray(o.bookings)||!Array.isArray(o.months))throw 0;
+  if(!confirm('Replace ALL current bookings and months with this backup?'))return;S.bookings=o.bookings;S.months=o.months;S.cur=0;save();render()}catch(e){alert('That file is not a valid backup')}});$('rf').value=''}
+function lastIdx(m){const o={};m.rows.forEach((r,i)=>{if(r.star!=='-')o[r.star]=i;if(r.star2)o[r.star2]=i});return o}
+function sections(m,i,L){const r=m.rows[i];
+  const bk=t=>(t&&t!=='-'&&L[t]===i)?S.bookings.filter(b=>b.star===t).map(b=>({c:'bk',t:b.name})):[];
+  const dw=D(r.d).getUTCDay(),wb=S.bookings.filter(b=>b.kind&&b.wd===dw&&(b.kind==='every'||m.rows.findIndex(x=>D(x.d).getUTCDay()===dw)===i)).map(b=>({c:'bk',t:b.name}));
+  const sp=r.sp.map((t,k)=>({c:'sp',t,k})), ex=(a,g)=>(a||[]).map((t,k)=>({c:'ex',t,k,g}));
+  const a={star:r.star,items:[...sp,...wb,...bk(r.star),...ex(r.ex,0)]};
+  return r.star2?[a,{star:r.star2,items:[...bk(r.star2),...ex(r.ex2,1)]}]:[a]}
+function render(){
+  const opt=(a,sel,none)=>(none?`<option value="-">${none}</option>`:'')+a.map(x=>`<option${x===sel?' selected':''}>${esc(x)}</option>`).join('');
+  if(!$('gm').options.length){$('gm').innerHTML=opt(MM);$('gs').innerHTML=opt(STARS);$('bs').innerHTML=opt(STARS);$('bw').innerHTML=WD.map((x,i)=>`<option value="${i}">${x}</option>`).join('');$('bfil').innerHTML='<option value="">All</option><option value="*">Weekday-based</option>'+opt(STARS);$('gd').value=new Date().toISOString().slice(0,10);}
+  $('ms').innerHTML=S.months.map((m,i)=>`<option value="${i}"${i===S.cur?' selected':''}>${esc(m.name)} (${m.rows[0]?lab(m.rows[0].d):''})</option>`).join('')||'<option>– none yet –</option>';
+  const m=cur();
+  if(!m){$('tbl').innerHTML='<p class="mut">Generate a month above to begin.</p>'}else{
+    const L=lastIdx(m);let h='<table><tr><th>ദിവസം</th><th>English</th><th>ആഴ്ച</th><th style="width:164px">നക്ഷത്രം</th><th>പേര്</th><th></th></tr>';
+    m.rows.forEach((r,i)=>{const sc=sections(m,i,L);
+      h+=`<tr><td class="c">${esc(m.name)} ${r.mal}</td><td class="c">${lab(r.d)}<br><input type="date" value="${r.d}" data-c="date" data-i="${i}" style="width:130px;font-size:11px;padding:1px"></td><td class="c">${wd(r.d)}</td>
+      <td colspan="2" style="padding:0"><table style="min-width:0;width:100%;border:0">${sc.map((q,g)=>`<tr><td style="width:150px;border-left:0;${g?'':'border-top:0;'}">${g?`<select data-c="star2" data-i="${i}" title="second star on this date"><option value="">✕ remove 2nd star</option>${opt(STARS,q.star)}</select>`:`<select data-c="star" data-i="${i}">${opt(STARS,q.star,'– No star –')}</select>`}</td><td style="border-right:0;${g?'':'border-top:0;'}">${q.items.map(x=>`<span class="${x.c==='sp'?'sp':'nm'}">${esc(x.t)}${x.c!=='bk'?`<span class="x" data-a="rm${x.c}" data-i="${i}" data-k="${x.k}" data-g="${x.g||0}">✕</span>`:''}</span>`).join('')}<input class="ex" placeholder="+ add pooja" data-c="addex" data-i="${i}" data-g="${g}"></td></tr>`).join('')}</table></td>
+      <td class="c"><button data-a="fill" data-i="${i}" title="re-fill stars below">⤓</button> <button data-a="ins" data-i="${i}" title="insert day below">＋</button> <button data-a="del" data-i="${i}">✕</button></td></tr>`});
+    $('tbl').innerHTML=h+'</table>'}
+  const f=$('bfil').value, bl=S.bookings.filter(b=>!f||(f==='*'?b.kind:b.star===f)).sort((a,b)=>STARS.indexOf(a.star)-STARS.indexOf(b.star));
+  $('bk').innerHTML=`<table><tr><th>Star / weekday</th><th>Name, house (${bl.length})</th><th></th></tr>`+bl.map(b=>`<tr><td>${b.kind?`<select data-c="bkind" data-id="${b.id}"><option value="first"${b.kind==='first'?' selected':''}>First</option><option value="every"${b.kind==='every'?' selected':''}>Every</option></select> <select data-c="bwd" data-id="${b.id}">${WD.map((x,i)=>`<option value="${i}"${i===b.wd?' selected':''}>${x}</option>`).join('')}</select>`:`<select data-c="bstar" data-id="${b.id}">${opt(STARS,b.star)}</select>`}</td><td><input style="width:100%" value="${esc(b.name)}" data-c="bname" data-id="${b.id}"></td><td class="c"><button data-a="delb" data-id="${b.id}">✕</button></td></tr>`).join('')+'</table>';
+}
+const A={
+ tab(el){$('m').hidden=el.dataset.v!=='m';$('b').hidden=el.dataset.v!=='b';$('tm').className=el.dataset.v==='m'?'on':'';$('tb').className=el.dataset.v==='b'?'on':''},
+ gen(){const d=$('gd').value;if(!d)return alert('Pick the English date of Day 1');const n=+$('gn').value,rows=[];let s=$('gs').value;
+  const X=[...document.querySelectorAll('#exl .exr')].map(r=>({t:r.querySelector('.et').value,d:r.querySelector('.ed').value,a:r.querySelector('.ea').value,b:r.querySelector('.eb').value}));
+  const bad=X.find(x=>!x.d||x.d<d||x.d>addD(d,n-1));if(bad)return alert('Every exception needs a date inside this month');
+  $('exl').innerHTML='';
+  for(let i=0;i<n;i++){const dt=addD(d,i),x=X.find(y=>y.d===dt),row={mal:i+1,d:dt,star:s,sp:[],ex:[]};
+   if(x&&x.t==='none')row.star='-';
+   else if(x){row.star=x.a;row.star2=x.b;s=nxt(x.b)}
+   else s=nxt(s);
+   rows.push(row)}
+  const t=$('gt').value||D(d).toISOString().slice(0,10).split('-').reverse().join('-');
+  S.months.push({name:$('gm').value,rate:$('gr').value,sheetDate:t,rows});S.cur=S.months.length-1;save();render()},
+ delm(el){if(!cur())return;if(!window._dm){window._dm=1;el.textContent='Click again to confirm';setTimeout(()=>{window._dm=0;el.textContent='Delete month'},4000);return}window._dm=0;el.textContent='Delete month';S.months.splice(S.cur,1);S.cur=0;save();render()},
+ addsp(){const m=cur(),l=$('sl').value.trim(),d=$('sdt').value;if(!m||!l||!d)return alert('Enter name and date');const r=m.rows.find(r=>r.d===d);if(!r)return alert('That date is not in this month');r.sp.push(l);$('sl').value='';save();render()},
+ rmsp(el){cur().rows[el.dataset.i].sp.splice(el.dataset.k,1);save();render()},
+ rmex(el){const r=cur().rows[el.dataset.i];(el.dataset.g==='1'?r.ex2:r.ex).splice(el.dataset.k,1);save();render()},
+ fill(el){const R=cur().rows;let s=null;for(let k=+el.dataset.i;k<R.length;k++){if(R[k].star==='-')continue;if(s===null){s=R[k].star2||R[k].star}else{s=nxt(s);R[k].star=s;if(R[k].star2)s=R[k].star2}}save();render()},
+ ins(el){const R=cur().rows,i=+el.dataset.i;R.splice(i+1,0,{mal:R[i].mal+1,d:addD(R[i].d,1),star:'-',sp:[],ex:[]});for(let k=i+2;k<R.length;k++){R[k].mal++;R[k].d=addD(R[k].d,1)}save();render()},
+ del(el){const R=cur().rows,i=+el.dataset.i;R.splice(i,1);for(let k=i;k<R.length;k++){R[k].mal--;R[k].d=addD(R[k].d,-1)}save();render()},
+ addb(){const n=$('bn').value.trim();if(!n)return;S.bookings.push($('bt').value?{id:uid(),name:n,star:'',kind:$('bt').value,wd:+$('bw').value}:{id:uid(),name:n,star:$('bs').value});$('bn').value='';save();render()},
+ delb(el){S.bookings=S.bookings.filter(b=>b.id!==el.dataset.id);save();render()},
+ addex(){const d=document.createElement('div');d.className='row exr';const so=STARS.map(x=>`<option>${x}</option>`).join('');
+  d.innerHTML=`<label>Type<select class="et" data-c="et"><option value="two">Two stars on one date</option><option value="none">No star on a date</option></select></label><label>Date<input type="date" class="ed"></label><label class="e2">Star 1<select class="ea" data-c="ea">${so}</select></label><label class="e2">Star 2<select class="eb">${so}</select></label><button data-a="rmx">✕</button>`;
+  $('exl').appendChild(d);d.querySelector('.eb').value=nxt(d.querySelector('.ea').value)},
+ rmx(el){el.closest('.exr').remove()},
+ backup(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({bookings:S.bookings,months:S.months})],{type:'application/json'}));a.download='pooja-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click()},
+ restore(){$('rf').click()},
+ xl:exportXl
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&A[el.dataset.a])A[el.dataset.a](el)});
+document.addEventListener('change',e=>{const el=e.target,c=el.dataset.c,m=cur();
+ if(c==='et'){el.closest('.exr').querySelectorAll('.e2').forEach(x=>x.hidden=el.value==='none');return}
+ if(c==='ea'){el.closest('.exr').querySelector('.eb').value=nxt(el.value);return}
+ if(el.id==='ms'){S.cur=+el.value;save();return render()}
+ if(el.id==='bfil')return render();
+ if(el.id==='rf'&&el.files[0])return rest(el.files[0]);
+ if(el.id==='bt'){$('lbs').hidden=!!el.value;$('lbw').hidden=!el.value;return}
+ if(el.id==='bf'&&el.files[0])return imp(el.files[0]);
+ if(c==='star'){m.rows[el.dataset.i].star=el.value}
+ else if(c==='star2'){const r=m.rows[el.dataset.i];r.star2=el.value||undefined;if(!r.star2){r.ex=r.ex.concat(r.ex2||[]);r.ex2=undefined}}
+ else if(c==='date'){const i=+el.dataset.i,R=m.rows,n=Math.round((D(el.value)-D(R[i].d))/864e5);for(let k=i;k<R.length;k++)R[k].d=addD(R[k].d,n)}
+ else if(c==='addex'){if(!el.value.trim())return;(el.dataset.g==='1'?(m.rows[el.dataset.i].ex2=m.rows[el.dataset.i].ex2||[]):m.rows[el.dataset.i].ex).push(el.value.trim())}
+ else if(c==='bkind'){S.bookings.find(b=>b.id===el.dataset.id).kind=el.value}
+ else if(c==='bwd'){S.bookings.find(b=>b.id===el.dataset.id).wd=+el.value}
+ else if(c==='bstar'){S.bookings.find(b=>b.id===el.dataset.id).star=el.value}
+ else if(c==='bname'){S.bookings.find(b=>b.id===el.dataset.id).name=el.value}
+ else return;
+ save();render()});
+async function imp(f){
+  const wb=new ExcelJS.Workbook();await wb.xlsx.load(await f.arrayBuffer());let n=0;
+  const tx=v=>v&&v.richText?v.richText.map(x=>x.text).join(''):(v==null?'':String(v));
+  wb.eachSheet(ws=>ws.eachRow((row,rn)=>{if(rn<8)return;const st=tx(row.getCell(4).value).trim(),c=row.getCell(5),t=tx(c.value).trim();
+    if(!t||!st||st==='-'||(c.font&&c.font.bold))return;
+    if(!S.bookings.some(b=>b.name===t&&b.star===st)){S.bookings.push({id:uid(),name:t,star:st});n++}}));
+  $('bf').value='';save();render();alert(n+' bookings imported')}
+function sheet(wb,m){
+  const ws=wb.addWorksheet(m.name);ws.columns=[{width:10},{width:10.8},{width:7.8},{width:13.7},{width:42.6}];
+  const mg=(r,v,b)=>{ws.mergeCells(r);const c=ws.getCell(r.split(':')[0]);c.value=v;if(b)c.font={name:'Aptos Narrow',size:b,bold:true}};
+  mg('A1:E1','തലയാക്കുളം ഭഗവതി ക്ഷേത്രം',12);mg('A2:E2',`നിത്യപൂജ വഴിപാട് വിവരങ്ങൾ (${m.name})`,10);
+  ws.mergeCells('A4:B4');ws.getCell('A4').value=m.rate;ws.getCell('E4').value='Date : '+m.sheetDate;
+  mg('A6:C6','ദിവസം');mg('D6:D7','നക്ഷത്രം ');mg('E6:E7','പേര്');
+  ['മലയാളം','ഇംഗ്ലീഷ് ','ആഴ്ച'].forEach((t,i)=>ws.getCell(7,i+1).value=t);
+  const L=lastIdx(m);let r=8;
+  m.rows.forEach((row,i)=>{const sc=sections(m,i,L),hs=sc.map(q=>Math.max(1,q.items.length)),n=hs.reduce((a,b)=>a+b,0);
+    [`${m.name} ${row.mal}`,lab(row.d),wd(row.d)].forEach((v,c)=>{ws.getCell(r,c+1).value=v;if(n>1)ws.mergeCells(r,c+1,r+n-1,c+1)});
+    let y=r;sc.forEach((q,k)=>{ws.getCell(y,4).value=q.star;if(hs[k]>1)ws.mergeCells(y,4,y+hs[k]-1,4);
+      q.items.forEach((x,j)=>{const c=ws.getCell(y+j,5);c.value=x.t;if(x.c==='sp'){c.font={name:'Aptos Narrow',size:9,bold:true};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFF6600'}};c.alignment={horizontal:'center'}}});y+=hs[k]});
+    r+=n});
+  const med={style:'medium'};
+  for(let y=6;y<r;y++)for(let x=1;x<=5;x++){const c=ws.getCell(y,x);c.border={top:med,bottom:med,left:med,right:med};
+    c.font=c.font&&c.font.name?c.font:{name:'Aptos Narrow',size:9,bold:y<8};
+    c.alignment=Object.assign({vertical:'middle',wrapText:x===4},c.alignment||{},x<5||y<8?{horizontal:'center'}:{})}
+}
+async function exportXl(){
+  if(!S.months.length)return alert('Generate a month first');
+  try{const wb=new ExcelJS.Workbook();S.months.forEach(m=>sheet(wb,m));const buf=await wb.xlsx.writeBuffer();
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));a.download='pooja-schedule.xlsx';document.body.appendChild(a);a.click();a.remove()}catch(e){alert('Download failed: '+((e&&e.message)||e))}
+}
+load();
+</script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {getFirestore,doc,onSnapshot,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+const g=id=>document.getElementById(id),cfg=window.FIREBASE_CONFIG,K=['bookings','months'];
+const gate=(msg,btn)=>{g('main').hidden=true;g('gate').hidden=false;g('gmsg').textContent=msg;g('signin').hidden=btn!=='in';g('gout').hidden=btn!=='out'};
+if(!cfg||String(cfg.apiKey).startsWith('PASTE')){gate('Firebase is not set up yet. Open index.html and paste your firebaseConfig (see README).','')}
+else{
+  const auth=getAuth(initializeApp(cfg)),db=getFirestore(),refs={bookings:doc(db,'pooja','bookings'),months:doc(db,'pooja','months')},last={bookings:null,months:null};let un=[];
+  g('signin').onclick=()=>signInWithPopup(auth,new GoogleAuthProvider()).catch(e=>gate('Sign-in failed: '+e.message,'in'));
+  g('signout').onclick=g('gout').onclick=()=>signOut(auth);
+  window.remoteSave=S=>{for(const k of K){const j=JSON.stringify(S[k]);if(j!==last[k]){last[k]=j;setDoc(refs[k],{json:j,by:(auth.currentUser&&auth.currentUser.email)||'',at:serverTimestamp()}).catch(e=>alert('Save failed: '+e.message))}}};
+  onAuthStateChanged(auth,u=>{
+    un.forEach(f=>f());un=[];K.forEach(k=>last[k]=null);
+    if(!u)return gate('Please sign in with your Google account.','in');
+    g('who').textContent=u.email;gate('Loading data…','');
+    K.forEach(k=>un.push(onSnapshot(refs[k],snap=>{
+      g('gate').hidden=true;g('main').hidden=false;
+      if(snap.metadata.hasPendingWrites)return;
+      const j=snap.exists()?snap.data().json:'[]';
+      if(j!==last[k]){last[k]=j;applyRemote(k,JSON.parse(j))}
+    },err=>gate(err.code==='permission-denied'?'The account '+u.email+' is not allowed to open this app. Ask the admin to add your email.':'Error: '+err.message,'out'))));
+  });
+}
+</script>
+</body></html>
